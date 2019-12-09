@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;    
 
 /*
  * TRAN KIM HIEU 
@@ -35,14 +37,13 @@ public class client {// CLIENT 1.2 -----------
 		String host;
 		Socket client = null;
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		//create fake server 
+		// create fake server
 		Thread fServer = new ThreadServer(8282);
 		fServer.start();
-		
-		
+
 		System.out.print("\n\nEnter IP server:");
 		host = input.readLine();
-		
+
 		try {
 			InetAddress address = InetAddress.getByName(host);
 			System.out.println("IP server Address: " + address.toString());
@@ -148,56 +149,55 @@ class ThreadServer extends Thread {
 		// server is listening on port
 		try {
 			ServerSocket ss = new ServerSocket(this.port);
-			System.out.print("hello fake server at "+String.valueOf(this.port)+"\n");
-				Socket s = null;
+			System.out.print("hello fake server at " + String.valueOf(this.port) + "\n");
+			Socket s = null;
 
-				try {
-					// socket object to receive incoming client requests
-					s = ss.accept();
+			try {
+				// socket object to receive incoming client requests
+				s = ss.accept();
 
-					System.out.println("A new client is connected : " + s);
+				System.out.println("A new client is connected : " + s);
 
-					// obtaining input and out streams
-					DataInputStream dis = new DataInputStream(s.getInputStream());
-					DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-					
-					
-					while (true) {
-						ReceiveProtocol rec = new ReceiveProtocol(dis, dos);
-						String mess = rec.runStr();
-						if (mess.contains("upload")) {
-							InputStream rBinary = null;
-							String valueSub = mess.substring(0, 6);
-							String endMes = mess.substring(7, mess.length());
-							boolean hasFile = false;
-							String lines;
-							if (endMes.contains(":"))
-								hasFile = true;
-							if (!hasFile)
-								System.out.println("Dont have file " + endMes + "\n");
-							else {
-								System.out.println("\noh yeah! start take file " + endMes + "...");
-								// get size of file and file name
-								String[] arrOfStr = endMes.split(":", 2);
-								String fileName = arrOfStr[1];
-								String sizeF = arrOfStr[0];
-								System.out.println("size is: " + sizeF + "\n" + fileName + "\n");
-								int fileSize = Integer.parseInt(sizeF);
-								if (fileSize > 0) {
-									dos.writeUTF(sizeF);
-									dos.flush();
-								}
-								ReceiveProtocol recF = new ReceiveProtocol(dis, fileName, fileSize, dos);
-								String status = recF.runBys();
+				// obtaining input and out streams
+				DataInputStream dis = new DataInputStream(s.getInputStream());
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+				while (true) {
+					ReceiveProtocol rec = new ReceiveProtocol(dis, dos);
+					String mess = rec.runStr();
+					if (mess.contains("upload")) {
+						InputStream rBinary = null;
+						String valueSub = mess.substring(0, 6);
+						String endMes = mess.substring(7, mess.length());
+						boolean hasFile = false;
+						String lines;
+						if (endMes.contains(":"))
+							hasFile = true;
+						if (!hasFile)
+							System.out.println("Dont have file " + endMes + "\n");
+						else {
+							System.out.println("\noh yeah! start take file " + endMes + "...");
+							// get size of file and file name
+							String[] arrOfStr = endMes.split(":", 2);
+							String fileName = arrOfStr[1];
+							String sizeF = arrOfStr[0];
+							System.out.println("size is: " + sizeF + "\n" + fileName + "\n");
+							int fileSize = Integer.parseInt(sizeF);
+							if (fileSize > 0) {
+								dos.writeUTF(sizeF);
+								dos.flush();
 							}
-
+							ReceiveProtocol recF = new ReceiveProtocol(dis, fileName, fileSize, dos);
+							String status = recF.runBys();
 						}
 
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+
 				}
-			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		} catch (IOException e) {
 
 		}
@@ -205,7 +205,6 @@ class ThreadServer extends Thread {
 	}
 
 }
-
 
 /*
  * thread fake client
@@ -215,7 +214,7 @@ class ThreadClient extends Thread {
 	private int port;
 	private String host;
 
-	public ThreadClient(String host,int port) {
+	public ThreadClient(String host, int port) {
 		this.port = port;
 		this.host = host;
 	}
@@ -230,10 +229,8 @@ class ThreadClient extends Thread {
 			// create stream in/output
 			DataInputStream is = new DataInputStream(client.getInputStream());
 			DataOutputStream os = new DataOutputStream(client.getOutputStream());
-			System.out.println("create connect to server fake at "+String.valueOf(this.port+"\n"));
-			
-			
-			
+			System.out.println("create connect to server fake at " + String.valueOf(this.port + "\n"));
+
 		} catch (IOException e) {
 
 		}
@@ -370,7 +367,7 @@ class ReceiveProtocol {
 
 	public String runBys() {
 		try {
-			File f = new File("SharedFolder\\"+this.path);
+			File f = new File("SharedFolder\\" + this.path);
 			f.createNewFile();
 			FileOutputStream wFile = new FileOutputStream(f);
 			byte[] buffer = new byte[1000];
@@ -389,6 +386,9 @@ class ReceiveProtocol {
 
 			}
 			System.out.println("download success!\n");
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			System.out.println(dtf.format(now));
 			os.writeUTF("THANK YOU I HAVE FILE");
 			os.flush();
 			return "success";

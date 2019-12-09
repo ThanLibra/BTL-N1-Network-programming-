@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime; 
 
 import javafx.scene.shape.Path;
 /*
@@ -103,6 +105,9 @@ class ThreadUser extends Thread {
 				server.setCmd(cmd);
 //				server.fName = endMes;
 //				}
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+				LocalDateTime now = LocalDateTime.now();
+				System.out.println(dtf.format(now));
 			}
 		} catch (IOException e) {
 

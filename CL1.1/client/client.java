@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 /*
  * TRAN KIM HIEU 
@@ -366,7 +368,7 @@ class ReceiveProtocol {
 
 	public String runBys() {
 		try {
-			File f = new File("SharedFolder\\"+this.path);
+			File f = new File("SharedFolder\\" + this.path);
 			f.createNewFile();
 			FileOutputStream wFile = new FileOutputStream(f);
 			byte[] buffer = new byte[1000];
@@ -385,6 +387,9 @@ class ReceiveProtocol {
 
 			}
 			System.out.println("download success!\n");
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			System.out.println(dtf.format(now));
 			os.writeUTF("THANK YOU I HAVE FILE");
 			os.flush();
 			return "success";

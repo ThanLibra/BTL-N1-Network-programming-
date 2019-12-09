@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,20 +28,23 @@ public class client {// CLIENT 2.1 -----------
 	public static String path = "SharedFolder";
 	public static int status = 0;
 	public static String fileCurrent = "";
+
 	static synchronized void setStatus(int i) {
 		status = i;
 	};
-	
+
 	static synchronized int getStatus() {
 		return status;
 	};
+
 	static synchronized void setFile(String file) {
 		fileCurrent = file;
 	};
-	
+
 	static synchronized String getFile() {
 		return fileCurrent;
 	};
+
 	public static void main(String[] args) throws IOException {
 		String pathF = ".\\SharedFolder";
 		String shutDown = new String("@logout");
@@ -51,8 +56,6 @@ public class client {// CLIENT 2.1 -----------
 		String host;
 		Socket client = null;
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		
-	
 
 		System.out.print("\n\nEnter IP server:");
 		host = input.readLine();
@@ -132,7 +135,7 @@ public class client {// CLIENT 2.1 -----------
 					// --set status has file enabled
 					setStatus(1);
 					setFile(endMes);
-					
+
 				}
 				if (host.contains(uploadFile) && host.length() > 7) {
 					File fileL = new File("SharedFolder");
@@ -242,10 +245,10 @@ class ThreadClient extends Thread {
 			DataInputStream is = new DataInputStream(cl.getInputStream());
 			DataOutputStream os = new DataOutputStream(cl.getOutputStream());
 			System.out.println("create connect to server fake at " + String.valueOf(this.port + "\n"));
-			while(true) {
-				if (client.getStatus()!=0) {
+			while (true) {
+				if (client.getStatus() != 0) {
 					System.out.println("start send file for other client\n");
-					String host = "upload "+client.getFile(); 
+					String host = "upload " + client.getFile();
 					File fileL = new File("SharedFolder");
 					String[] fileList = fileL.list();
 					String listName = "\n";
@@ -276,7 +279,7 @@ class ThreadClient extends Thread {
 					}
 				}
 			}
-		
+
 		} catch (IOException e) {
 
 		}
@@ -413,7 +416,7 @@ class ReceiveProtocol {
 
 	public String runBys() {
 		try {
-			File f = new File(client.path+"\\"+this.path);
+			File f = new File(client.path + "\\" + this.path);
 			f.createNewFile();
 			FileOutputStream wFile = new FileOutputStream(f);
 			byte[] buffer = new byte[1000];
@@ -432,6 +435,9 @@ class ReceiveProtocol {
 
 			}
 			System.out.println("download success!\n");
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			System.out.println(dtf.format(now));
 			os.writeUTF("THANK YOU I HAVE FILE");
 			os.flush();
 			return "success";
