@@ -44,6 +44,12 @@ public class client {// CLIENT 2.1 -----------
 	static synchronized String getFile() {
 		return fileCurrent;
 	};
+	
+	static synchronized String[] getListFile() {
+		File fileL = new File("SharedFolder");
+		String[] fileList = fileL.list();
+		return fileList;
+	}
 
 	public static void main(String[] args) throws IOException {
 		String pathF = ".\\SharedFolder";
@@ -249,8 +255,10 @@ class ThreadClient extends Thread {
 				if (client.getStatus() != 0) {
 					System.out.println("start send file for other client\n");
 					String host = "upload " + client.getFile();
-					File fileL = new File("SharedFolder");
-					String[] fileList = fileL.list();
+					//--------get file list
+//					File fileL = new File("SharedFolder");
+//					String[] fileList = fileL.list();
+					String[] fileList =cl client.getListFile();
 					String listName = "\n";
 					int count = 1;
 					for (String name : fileList) {
@@ -324,7 +332,7 @@ class SendProtocol {
 		this.statement = statement;
 	}
 
-	public void run() {
+	public synchronized void run() {
 		if (this.protocol.equals(this.typeStr)) {
 			try {
 				this.os.writeChars(this._beforeStr);

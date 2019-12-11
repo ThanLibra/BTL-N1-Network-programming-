@@ -8,8 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
-import java.time.format.DateTimeFormatter;  
-import java.time.LocalDateTime; 
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 //import javafx.scene.shape.Path;
 /*
@@ -44,6 +44,12 @@ public class server {
 	static synchronized String getCmd() {
 		return command;
 	};
+
+	static synchronized String[] getListFile() {
+		File fileL = new File("SharedFolder");
+		String[] fileList = fileL.list();
+		return fileList;
+	}
 
 	public static void main(String[] args) throws IOException {
 		System.out.print("hello i'm server!\n");
@@ -154,8 +160,10 @@ class ThreadRun extends Thread {
 				try {
 					if (cmd.contains(downFile)) {
 						if (cmd.contains(downFile)) {
-							File fileL = new File("SharedFolder");
-							String[] fileList = fileL.list();
+							//-------------------------get list file
+//							File fileL = new File("SharedFolder");
+//							String[] fileList = fileL.list();
+							String[] fileList = server.getListFile();
 							String fn = cmd.substring(9, cmd.length());
 							boolean hasFile = false;
 							for (String name : fileList) {
