@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class client1 {
+public class client {
 
 	public static void main(String[] args) {
 
@@ -29,20 +29,8 @@ public class client1 {
 
 		try {
 
-			SendProtocol send = new SendProtocol(os, is, pathFolder+"\\"+"video.mp4","video.mp4");
-			send.send();
-//           os.write("QUIT");
-//           os.newLine();
-//           os.flush();
-
-//           String responseLine;
-//           while ((responseLine = is.readLine()) != null) {
-//               System.out.println("Server: " + responseLine);
-//               if (responseLine.indexOf("OK") != -1) {
-//                   break;
-//               }
-//           }
-// 
+			ReceiveProtocol rec = new ReceiveProtocol(os,is);
+			rec.saveFile();
 			os.close();
 			is.close();
 			socketOfClient.close();
@@ -55,73 +43,6 @@ public class client1 {
 
 }
 
-class SendProtocol {
-	private OutputStream os = null;
-	private InputStream is = null;
-	private String dataStr = "";
-	private String path = "";
-	private String fileName = "";
-	private final String key = "@";
-	private final String beforeStr = "s";
-	private final String beforeFile = "f";
-	private final String pathFolder = "SharedFolder";
-
-	public SendProtocol(OutputStream os, InputStream is, String data) {
-		this.is = is;
-		this.os = os;
-		this.dataStr = data;
-	}
-
-	public SendProtocol(OutputStream os, InputStream is, String path, String fileName) {
-		this.is = is;
-		this.os = os;
-		this.path = path;
-		this.fileName = fileName;
-	}
-
-	public void send() {
-
-		if (this.path.isEmpty() && !this.dataStr.isEmpty()) {
-			/*
-			 * send message protocol form: <size_message>@<content_message> type: byte[]
-			 */
-			try {
-				int len = this.dataStr.length();
-				String l = String.valueOf(len) + "@";
-				byte[] bb = this.dataStr.getBytes();
-				this.os.write(l.getBytes());
-				this.os.write(this.dataStr.getBytes());
-				this.os.flush();
-			} catch (IOException e) {
-				return;
-			}
-		} else {
-			/*
-			 * send file protocol form: <size_file>:<file_name>@<data_file> type: byte[]
-			 */
-			try {
-				FileInputStream inputStream = new FileInputStream(this.path);
-				File fTemp = new File(this.path);
-				long sizeFL = fTemp.length();
-				String sizeFS = String.valueOf(sizeFL);
-				String messFile = sizeFS + ":" + this.fileName + "@";
-				this.os.write(messFile.getBytes());
-				int total = 0;
-				int nRead = 0;
-				byte[] buffer = new byte[1000];
-				while ((nRead = inputStream.read(buffer)) != -1) {
-					total += nRead;
-					this.os.write(buffer, 0, nRead);
-				}
-				System.out.println("send file < "+this.fileName+" >  success!! :<>: "+"Read " + total + " bytes");
-			} catch (IOException e) {
-
-			}
-			return;
-		}
-	}
-
-}
 
 class ReceiveProtocol {
 	private InputStream is = null;
@@ -154,9 +75,9 @@ class ReceiveProtocol {
 					} else {
 						int len = Integer.parseInt(length);
 						int total = 0;
-						File f = new File(this.path+"\\"+fileName);
-						f.createNewFile();
-						FileOutputStream wFile = new FileOutputStream(f);
+						File f = new File(this.path+"/"+fileName);
+						FileOutputStream fOut = new FileOutputStream(f);
+						BufferedOutputStream wFile = new BufferedOutputStream(fOut);
 						// get each byte
 						while ((count = is.read(dataFile)) != -1) {
 							total += count;
